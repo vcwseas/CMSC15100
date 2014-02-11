@@ -1,0 +1,38 @@
+Racket Behavior:
+
+
+*	lists in Racket are represented by ordered pairs. 
+
+*	(cons (list 1 2) (list 1 2 3 4 5))
+	> (list (list 1 2) 1 2 3 4 5)
+	because cons takes the first arugment as the first ELEMENT of a new ordered pair. Thus (list 1 2) is the first element in an ordered pair, where the second element is a reference to the FIRST ordered pair of (list 1 2 3 4 5), namely (1, ref->(list 2 3 4 5)). Then by extension (list 1 2) becomes the first element in a long chain of ordered pairs, giving the displayed result.
+
+*	(append (list 1 2) (list 1 2 3 4 5))
+	> (list 1 2 1 2 3 4 5)
+	because append takes multiple lists and creates ONE single list where every list is a subset. 
+
+* 	(cons a l) -> pair
+	- a can be anything
+	- l must be a list, i.e. ordered pair. 
+
+*	For lab3, really clean implementation of all the auxiliary functions for 
+	calculating a linear regression. 
+
+	;; mapsum : (posn -> num) (listof posn) -> num
+	;; apply function to each posn to yield a number, and sum all numbers
+	(define (mapsum f ds) 
+  	(foldr (lambda (p s) (+ s (f p))) 0 ds))
+
+	;; slope : (listof posn) -> num
+	;; compute best-fit slope per linear regression analysis
+	(define (slope ds)
+ 	(local
+   		{(define n (length ds))
+    		(define sumXY (mapsum (lambda (p) (* (posn-x p) (posn-y p))) ds))
+    		(define sumX (mapsum posn-x ds))
+    		(define sumY (mapsum posn-y ds))
+    		(define sumX2 (mapsum (lambda (p) (* (posn-x p) (posn-x p))) ds))}
+   	(if (< n 2)
+      	 (error 'slope "too few points")
+       	 (/ (- (* n sumXY) (* sumX sumY))
+            (- (* n sumX2) (* sumX sumX))))))

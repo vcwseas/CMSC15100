@@ -1,0 +1,37 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname 8-Queen) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
+;; σ is a type variable, a mnemonic for "state."
+
+;; search : σ (σ -> (or (listof σ) 'goal)) -> (or σ false)
+;; generic backtrack search starting from the start state.  The next
+;; function either returns 'goal, when its argument is a goal state,
+;; '() when its argument is a dead end, or else a list of successor
+;; states.
+(define (search start next)
+  (local
+    {;; look : σ -> (or σ false)
+     ;; starting from given state, return a goal state or false
+     (define (look s)
+       (match (next s)
+         ['goal s]
+         [next-states
+          (local
+            {;; lp : (listof σ) -> (or σ false)
+             ;; look for a goal from list of states;
+             ;; return first goal encountered, or false 
+             (define (lp ss)
+               (cond
+                [(empty? ss) false]
+                [else 
+                 (match (look (first ss))
+                   [#f (lp (rest ss))]
+                   [g g])]))}
+            (lp next-states))]))}
+    (look start))) 
+
+
+;; a 8-q-state is a (listof posn)
+;; where posn represent the position of a queen
+;; on an 8 x 8 board. 
+

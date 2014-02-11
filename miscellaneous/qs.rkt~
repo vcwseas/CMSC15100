@@ -1,0 +1,10 @@
+(define (partition pred lst)
+	(if (or (empty? lst) (empty? (cdr lst)))
+		lst
+		(list (filter pred lst) (filter (lambda (n) (not (pred n))) lst) )))
+
+
+(define (qs )
+
+)
+

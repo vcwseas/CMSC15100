@@ -1,0 +1,62 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname practice) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f ())))
+;; === higher-order programming
+
+;; ! : (alpha -> bool) -> (alpha -> bool)
+;; return the logical negation of the given test2
+(define (! f)
+  (λ (n) (not (f n))))
+
+(check-expect ((! negative? ) -2) false) 
+(check-expect ((! positive?) 0) true)
+
+;; disj: (alpha -> bool) (alpha -> bool) -> (alpha -> bool)
+;; return the test consisting of the disjunction of what's tested by f and g
+(define (disj f g)
+  (λ (n) (or (f n) (g n))))
+
+(check-expect ((disj positive? negative?) 10) true)
+(check-expect ((disj positive? negative?) 0) false)
+
+;; conj : (α -> bool) (α -> bool) -> (α -> bool)
+;; return the test consisting of the conjunction of what's tested by f and g
+(define (conj f g)
+  (λ (n) (and (f n) (g n))))
+
+(check-expect ((conj positive? negative?) 10) false)
+(check-expect ((conj (! positive?)  (! negative?)) 0) true)
+
+
+;; an (order-suit alpha) is a (make-orders lt le gt ge eq ne)
+;; where weach item is an (alpha alpha -> bool)
+;; abbrev, less than, less than or equal, greater than,
+;; greater than or equal, equal, not equal
+(define-struct orders (lt le gt ge eq ne))
+
+;; orders-from-lt : (alpha alpha -> bool) -> (order-suite alpha)
+;; given a less-than function, return the collection of six common
+;; comparisons. 
+(define (orders-from-lt lt)
+  (local { (define ge
+             (λ (n1 n2) (not (lt n1 n2))))
+           
+           (define eq
+             (λ (n1 n2) (equal? n1 n2)))
+           
+           (define gt
+             (λ (n1 n2) (and (not ((eq lt) n1 n2))
+                             ((ge lt) n1 n2))))
+           
+           (define ne
+             (λ (n1 n2) (not ((eq lt) n1 n2))))
+           
+           (define le
+             (λ (n1 n2) (or ((eq lt) n1 n2)
+                            (lt n1 n2)))) }
+    (make-orders lt le gt ge eq ne)))
+
+
+
+                                         
+           

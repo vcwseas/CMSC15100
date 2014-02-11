@@ -1,0 +1,50 @@
+;; outdated and incorrect solutions for project1
+
+
+define (pieces-valid? g)
+  (local ( (define (sum-of-pieces proc g) (foldl (λ (p acc) (+ (piece-size p) acc)) 0 (proc g)))
+           (define sum-of-oinv (sum-of-pieces game-oinv g))
+           (define sum-of-binv (sum-of-pieces game-binv g))
+           (define sum-of-board (foldl (λ (lst acc) (+ acc (sum-of-pieces identity lst))) 0 (game-board g)))
+           (define final-sum (+ sum-of-oinv sum-of-binv sum-of-board))
+           (define blue-in-binv (andmap (λ (p) (equal? 'blue (piece-player p))) (game-binv g)))
+           (define orange-in-oinv (andmap (λ (p) (equal? 'orange (piece-player p))) (game-oinv g)))
+           (define six-of-blue (= 6 (+ (length (game-binv g)) (foldl (λ (lst acc1) (+ (foldl (λ (p acc2) (if (symbol=? (piece-player p) 'blue)
+                                                                                                   (add1 acc2)
+                                                                                                    acc2)) 0 lst) acc1)) 0 (game-board g)))))
+           (define six-of-orange (= 6 (+ (length (game-oinv g)) (foldl (λ (lst acc1) (+ (foldl (λ (p acc2) (if (symbol=? (piece-player p) 'orange)
+                                                                                                   (add1 acc2)
+                                                                                                    acc2)) 0 lst) acc1)) 0 (game-board g))))) )
+          
+    (and blue-in-binv orange-in-oinv (= final-sum 24) six-of-blue six-of-orange)))
+
+    (define (pieces-valid? g)
+  (local ( (define (num-of size player) (+ (foldl (λ (p acc) (if (and (symbol=? player (piece-player p))
+                                                                                   (= size (piece-size p)))
+                                                                              (add1 acc)
+                                                                              acc)) 0 (if (symbol=? player 'blue)
+                                                                                            (game-binv g)
+                                                                                            (game-oinv g)))
+                                         (foldl (λ (lst acc1) 
+                                               (+ acc1 (foldl (λ (p acc2) 
+                                                                (if (and (symbol=? player (piece-player p))
+                                                                                   (= size (piece-size p)))
+                                                                              (add1 acc2)
+                                                                              acc2)) 0 lst))) 0 (game-board g))))
+           (define 2-of-each (and  ;; extremely unncessary use of higher order functions here, 
+                                 (andmap identity  
+                                        (map (lambda (n) (= 2 (num-of n 'blue))) (build-list 3 add1)))
+                                 (andmap identity  
+                                        (map (lambda (n) (= 2 (num-of n 'orange))) (build-list 3 add1))))) ) 
+     2-of-each ))
+
+
+
+
+;; doesn’t work because ill-founded doesn’t check for strict inequality. (3,3,1) would be true where it shouldn’t be
+(define (squares-valid? b)
+  (local ( (define illegal-number (ormap (λ (lst) (> (length lst) 3)) b))
+           (define ill-founded (ormap  (λ (lst) (not (equal? (list-of-piece-values lst) 
+                                                             (quicksort (list-of-piece-values lst) >)))) 
+                                       b) ) )
+    (and (not illegal-number) (not ill-founded))))
